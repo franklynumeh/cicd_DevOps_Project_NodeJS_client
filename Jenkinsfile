@@ -21,16 +21,27 @@ pipeline {
        
         stage("Build & Upload") {
             steps {
-                sh "npm version"
                 sh "npm install"
-                // sh "npm run build"
-        //         sh "set +x && echo \"//ec2-18-222-132-112.us-east-2.compute.amazonaws.com:8081/repository/postboard-server/:_authToken=NpmToken.e16aff1c-2ce9-3004-ac4e-b66093f87b7d\" >> .npmrc"
+                // sh "npm start"
+                
+        //         sh "set +x && echo \"//ec2-3-145-203-189.us-east-2.compute.amazonaws.com:8081/repository/chiemela_devops_server_nexus_repo/:_authToken=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\" >> .npmrc"
         //         sh "npm publish"
-        //          //To publish without using puting the repo url in package.json do the line below
-        //         //npm publish --registry http://ec2-18-222-132-112.us-east-2.compute.amazonaws.com:8081/repository/postboard-server/
+        //   To publish without using puting the repo url in package.json do the line below
+
+        //        sh 'npm publish --registry http://ec2-3-145-203-189.us-east-2.compute.amazonaws.com:8081/repository/chiemela_devops_server_nexus_repo/'
+
+    // Put this in json file
+    //      "publishConfig": {
+    // "registry": "http://ec2-3-145-203-189.us-east-2.compute.amazonaws.com:8081/repository/chiemela_devops_server_nexus_repo/"
+    // },
+
+        
             }
         }
-      
+
+
+
+
         stage ("Code Quality") {
             steps {
                 withSonarQubeEnv("SonarQube") {
@@ -38,7 +49,37 @@ pipeline {
                     sh "npm run sonar"
                 }
             }
+        }   
+
+       
+//    stage("Build Docker Image") {
+//             steps {
+//                 script {
+//                     // docker.build("cicd-server-application-image:${env.BUILD_ID}")
+//                    sh 'docker build -t docker-images .'
+//                 }
+//             }
+//         }
+
+ stage('Build Image and Pushing to ECR') {
+     steps{  
+         script {
+                sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 577638372446.dkr.ecr.us-east-2.amazonaws.com'
+                sh 'docker build -t react-image .'
+                sh 'docker tag node-react-repo:latest 577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:latest'
+                sh 'docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:latest'
+         }
         }
+      }
+   
+        
+        //     stage('Building image') {
+    //   steps{
+    //     script {
+    //       dockerImage = docker.build registry
+    //     }
+    //   }
+    // }
         
         //     stage ("terraform init") {
         //     steps {
@@ -63,7 +104,7 @@ pipeline {
 //         stage ('DEV Notify')  {
 //             steps {
 
-//       slackSend(channel:'myredditpipeline', message: "Job is successful, here is the info -  Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+//       slackSend(channel:'jenkins-server', message: "Job is successful, here is the info -  Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
 //   }
 // }
 
