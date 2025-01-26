@@ -68,39 +68,18 @@ stage('Build and Push Docker Image') {
             def latestTag = "build-${env.BUILD_NUMBER}-latest" // Dynamic 'latest' tag
             
             // Build the image with the Jenkins build number tag
-            sh "docker build --no-cache -t 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${buildTag} ."
+            sh "docker build --no-cache -t 577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:${buildTag} ."
             
             // Tag the image with the dynamic 'latest' tag (not overwriting 'latest')
-            sh "docker tag 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${buildTag} 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${latestTag}"
+            sh "docker tag 577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:${buildTag} 577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:${latestTag}"
 
             // Push both tags to ECR
-            sh "docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${buildTag}"
-            sh "docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${latestTag}"
+            sh "docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:${buildTag}"
+            sh "docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:${latestTag}"
         }
     }
 }
 
-
-// stage('Build Image and Pushing to ECR') {
-//     steps {  
-//         script {
-//             sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 577638372446.dkr.ecr.us-east-2.amazonaws.com'
-
-//             // Build the Docker image without using cache
-//             sh 'docker build --no-cache -t react-image .'
-
-//             // Use a unique tag, e.g., a combination of the build ID or timestamp
-//             def uniqueTag = "${env.BUILD_ID ?: System.currentTimeMillis()}" // Use Jenkins BUILD_ID or timestamp
-//             def imageUri = "577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:${uniqueTag}"
-
-//             // Tag the image with the unique tag
-//             sh "docker tag react-image:latest ${imageUri}"
-
-//             // Push the uniquely tagged image to ECR
-//             sh "docker push ${imageUri}"
-//         }
-//     }
-// }
 
 
 // stage('Deploy Application') {
