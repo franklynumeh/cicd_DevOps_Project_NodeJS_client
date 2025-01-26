@@ -84,7 +84,6 @@ stage('Build and Push Docker Image') {
 
 
 
-
 stage('Deploy Application') {
     steps {
         script {
