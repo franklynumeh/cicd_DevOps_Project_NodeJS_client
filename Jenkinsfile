@@ -62,20 +62,39 @@ pipeline {
 //             }
 //         }
 
- stage('Build Image and Pushing to ECR') {
-     steps{  
-         script {
-                sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 577638372446.dkr.ecr.us-east-2.amazonaws.com'
-                // sh 'docker build -t react-image .'
-                sh 'docker build --no-cache -t react-image .'
+//  stage('Build Image and Pushing to ECR') {
+//      steps{  
+//          script {
+//                 sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 577638372446.dkr.ecr.us-east-2.amazonaws.com'
+//                 // sh 'docker build -t react-image .'
+//                 sh 'docker build --no-cache -t react-image .'
 
-                sh 'docker tag react-image:latest 577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:latest'
-                sh 'docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:latest'
-         }
-        }
-      }
+//                 sh 'docker tag react-image:latest 577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:latest'
+//                 sh 'docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:latest'
+//          }
+//         }
+//       }
    
+stage('Build Image and Pushing to ECR') {
+    steps {  
+        script {
+            sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 577638372446.dkr.ecr.us-east-2.amazonaws.com'
 
+            // Build the Docker image without using cache
+            sh 'docker build --no-cache -t react-image .'
+
+            // Use a unique tag, e.g., a combination of the build ID or timestamp
+            def uniqueTag = "${env.BUILD_ID ?: System.currentTimeMillis()}" // Use Jenkins BUILD_ID or timestamp
+            def imageUri = "577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:${uniqueTag}"
+
+            // Tag the image with the unique tag
+            sh "docker tag react-image:latest ${imageUri}"
+
+            // Push the uniquely tagged image to ECR
+            sh "docker push ${imageUri}"
+        }
+    }
+}
 //    stage('Deploy Application') {
 //     steps {
 //         script {
