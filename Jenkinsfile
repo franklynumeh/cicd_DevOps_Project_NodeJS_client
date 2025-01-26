@@ -40,20 +40,41 @@ pipeline {
         // }   
 
 
+// stage('Build and Push Docker Image') {
+//     steps {
+//         script {
+//             sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 577638372446.dkr.ecr.us-east-2.amazonaws.com'
+
+//             def imageTag = "build-${env.BUILD_NUMBER}"
+//             def latestTag = "latest"
+
+//             // Build the image
+//             sh "docker build -t 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${imageTag} ."
+//             sh "docker tag 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${imageTag} 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${latestTag}"
+
+//             // Push the image with both tags
+//             sh "docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${imageTag}"
+//             sh "docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${latestTag}"
+//         }
+//     }
+// }
+
 stage('Build and Push Docker Image') {
     steps {
         script {
             sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 577638372446.dkr.ecr.us-east-2.amazonaws.com'
 
-            def imageTag = "build-${env.BUILD_NUMBER}"
-            def latestTag = "latest"
+            def buildTag = "build-${env.BUILD_NUMBER}"
+            def latestTag = "build-${env.BUILD_NUMBER}-latest" // Dynamic 'latest' tag
+            
+            // Build the image with the Jenkins build number tag
+            sh "docker build -t 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${buildTag} ."
+            
+            // Tag the image with the dynamic 'latest' tag (not overwriting 'latest')
+            sh "docker tag 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${buildTag} 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${latestTag}"
 
-            // Build the image
-            sh "docker build -t 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${imageTag} ."
-            sh "docker tag 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${imageTag} 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${latestTag}"
-
-            // Push the image with both tags
-            sh "docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${imageTag}"
+            // Push both tags to ECR
+            sh "docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${buildTag}"
             sh "docker push 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${latestTag}"
         }
     }
