@@ -68,7 +68,7 @@ stage('Build and Push Docker Image') {
             def latestTag = "build-${env.BUILD_NUMBER}-latest" // Dynamic 'latest' tag
             
             // Build the image with the Jenkins build number tag
-            sh "docker build -t 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${buildTag} ."
+            sh "docker build --no-cache -t 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${buildTag} ."
             
             // Tag the image with the dynamic 'latest' tag (not overwriting 'latest')
             sh "docker tag 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${buildTag} 577638372446.dkr.ecr.us-east-2.amazonaws.com/docker-images:${latestTag}"
