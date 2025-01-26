@@ -13,13 +13,73 @@ pipeline {
             }
         }
         
-        // stage("Code Coverage") {
-        //     steps {
-        //         jacoco()
-        //     }
-        // }
+        stage("Code Coverage") {
+            steps {
+                jacoco()
+            }
+        }
        
        
+        stage("Build & Upload") {
+            steps {
+                sh "npm install"
+        
+            }
+        }
+
+
+
+
+        stage ("Code Quality") {
+            steps {
+                withSonarQubeEnv("SonarQube") {
+                    sh "npm install sonar-scanner"
+                    sh "npm run sonar"
+                }
+            }
+        }   
+
+
+stage('Build Image and Pushing to ECR') {
+    steps {  
+        script {
+            sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 577638372446.dkr.ecr.us-east-2.amazonaws.com'
+
+            // Build the Docker image without using cache
+            sh 'docker build --no-cache -t react-image .'
+
+            // Use a unique tag, e.g., a combination of the build ID or timestamp
+            def uniqueTag = "${env.BUILD_ID ?: System.currentTimeMillis()}" // Use Jenkins BUILD_ID or timestamp
+            def imageUri = "577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:${uniqueTag}"
+
+            // Tag the image with the unique tag
+            sh "docker tag react-image:latest ${imageUri}"
+
+            // Push the uniquely tagged image to ECR
+            sh "docker push ${imageUri}"
+        }
+    }
+}
+
+
+stage('Deploy Application') {
+    steps {
+        script {
+            // Trigger the deployment script on the target server
+            sshagent(['4867e2a4-980d-4950-ba51-c4ca1f763678']) {
+                sh '''
+                ssh -o StrictHostKeyChecking=no ec2-user@18.116.27.225 << 'EOF'
+                cd /home/ec2-user/main/scripts
+                chmod +x pull_and_deploy.sh
+                ./pull_and_deploy.sh
+                EOF
+                '''
+            }
+        }
+    }
+}
+
+ 
         // stage("Build & Upload") {
         //     steps {
         //         sh "npm install"
@@ -39,19 +99,6 @@ pipeline {
         
         //     }
         // }
-
-
-
-
-        // stage ("Code Quality") {
-        //     steps {
-        //         withSonarQubeEnv("SonarQube") {
-        //             sh "npm install sonar-scanner"
-        //             sh "npm run sonar"
-        //         }
-        //     }
-        // }   
-
        
 //    stage("Build Docker Image") {
 //             steps {
@@ -75,40 +122,8 @@ pipeline {
 //         }
 //       }
    
-stage('Build Image and Pushing to ECR') {
-    steps {  
-        script {
-            sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 577638372446.dkr.ecr.us-east-2.amazonaws.com'
 
-            // Build the Docker image without using cache
-            sh 'docker build --no-cache -t react-image .'
-
-            // Use a unique tag, e.g., a combination of the build ID or timestamp
-            def uniqueTag = "${env.BUILD_ID ?: System.currentTimeMillis()}" // Use Jenkins BUILD_ID or timestamp
-            def imageUri = "577638372446.dkr.ecr.us-east-2.amazonaws.com/node-react-repo:${uniqueTag}"
-
-            // Tag the image with the unique tag
-            sh "docker tag react-image:latest ${imageUri}"
-
-            // Push the uniquely tagged image to ECR
-            sh "docker push ${imageUri}"
-        }
-    }
-}
-//    stage('Deploy Application') {
-//     steps {
-//         script {
-//             // Trigger the deployment script on the target server
-//             sshagent(['your-ssh-credential-id']) {
-//                 sh '''
-//                 ssh -o StrictHostKeyChecking=no ec2-user@<TARGET_SERVER_IP> << 'EOF'
-//                 ./deploy_docker_image.sh
-//                 EOF
-//                 '''
-//             }
-//         }
-//     }
-// }
+// 
         
         //     stage('Building image') {
     //   steps{
@@ -157,11 +172,6 @@ stage('Build Image and Pushing to ECR') {
 //    }
 
 
-
-
-
-
-        
         
         
     //     stage('Building image') {
