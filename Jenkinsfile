@@ -75,6 +75,22 @@ pipeline {
         }
       }
    
+
+
+//    stage('Deploy Application') {
+//     steps {
+//         script {
+//             // Trigger the deployment script on the target server
+//             sshagent(['your-ssh-credential-id']) {
+//                 sh '''
+//                 ssh -o StrictHostKeyChecking=no ec2-user@<TARGET_SERVER_IP> << 'EOF'
+//                 ./deploy_docker_image.sh
+//                 EOF
+//                 '''
+//             }
+//         }
+//     }
+// }
         
         //     stage('Building image') {
     //   steps{
