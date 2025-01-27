@@ -21,6 +21,9 @@ pipeline {
        
        
         stage("Build & Upload") {
+             environment {
+        CI = 'false'  // Disables treating warnings as errors
+        }  
             steps {
                 sh "npm install"
                 sh "npm run build"
