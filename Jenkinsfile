@@ -23,6 +23,7 @@ pipeline {
         stage("Build & Upload") {
             steps {
                 sh "npm install"
+                sh "npm run build"
         
             }
         }
@@ -72,8 +73,8 @@ stage('Deploy Application') {
                 sh '''#!/bin/bash
                 ssh -o StrictHostKeyChecking=no ec2-user@3.148.106.135 "
                 cd /home/ec2-user/main/scripts
-                chmod +x pull_and_deploy.sh
-                ./pull_and_deploy.sh"
+                chmod +x pull_and_deploy-reactapp.sh
+                ./pull_and_deploy-reactapp.sh"
                 '''
             }
         }

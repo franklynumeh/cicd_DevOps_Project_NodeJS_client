@@ -51,7 +51,7 @@ function App() {
   const { fullBox, cart, userInfo } = state;
 
   // axios.defaults.baseURL = 'http://localhost:4000/';
-  axios.defaults.baseURL = 'https://team2furniturestore.onrender.com/';
+  axios.defaults.baseURL = 'http://3.148.106.135:4000/';
 
 
   const signoutHandler = () => {
