@@ -33,7 +33,6 @@ pipeline {
 
 
 
-
         // stage ("Code Quality") {
         //     steps {
         //         withSonarQubeEnv("SonarQube") {
@@ -42,7 +41,6 @@ pipeline {
         //         }
         //     }
         // }   
-
 
 stage('Build and Push Docker Image') {
     steps {
