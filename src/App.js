@@ -51,7 +51,7 @@ function App() {
   const { fullBox, cart, userInfo } = state;
 
   // axios.defaults.baseURL = 'http://localhost:4000/';
-  axios.defaults.baseURL = 'http://10.100.62.66:80/';
+  axios.defaults.baseURL = 'http://10.100.71.88:80/';
 
 
   const signoutHandler = () => {
